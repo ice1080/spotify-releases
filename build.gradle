@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'com.ice1080'
@@ -18,4 +19,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'com.ice1080.SpotifyReleases'
 }
