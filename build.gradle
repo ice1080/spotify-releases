@@ -1,10 +1,13 @@
 plugins {
+    id 'org.springframework.boot' version '2.7.3'
+    id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id 'java'
-    id 'application'
+//    id 'application'
 }
 
-group 'com.ice1080'
-version '1.0-SNAPSHOT'
+group = 'com.ice1080'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -12,7 +15,9 @@ repositories {
 
 dependencies {
     implementation 'se.michaelthelin.spotify:spotify-web-api-java:7.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
@@ -21,7 +26,7 @@ test {
     useJUnitPlatform()
 }
 
-application {
-    // Define the main class for the application.
-    mainClass = 'com.ice1080.SpotifyReleases'
-}
+//application {
+//    // Define the main class for the application.
+//    mainClass = 'com.ice1080.SpotifyReleases'
+//}

@@ -2,11 +2,11 @@
 
 ## Setup
 
-* You have to have a file on your path(?) that has the following variables defined on it:
+* You have to have these environment variables set:
   * SPOTIFY_RELEASES_CLIENT_ID
   * SPOTIFY_RELEASES_CLIENT_SECRET
 
 ## Running the Application
 
-* `./gradlew run`
+* `./gradlew bootRun`
 
