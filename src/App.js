@@ -1,15 +1,24 @@
 import { useEffect } from "react";
 import logo from "./spotifyLogo.svg";
 import "./App.css";
-import SpotifyWebApi from "spotify-web-api-js";
 import { useSpotify } from "./hooks/useSpotify";
 
-const spotifyApi = new SpotifyWebApi();
-
 export default function App() {
-  const { hasLoggedIn, isLoading, login, logout, user } = useSpotify();
+  const { hasLoggedIn, login, spotifyApi, logout, user } = useSpotify();
 
-  console.log("has?", hasLoggedIn);
+  useEffect(() => {
+    if (hasLoggedIn) {
+      console.log("calling stuff here");
+      spotifyApi.getArtistAlbums("43ZHCT0cAZBISjO8DG9PnE").then(
+        function (data) {
+          console.log("Artist albums", data);
+        },
+        function (err) {
+          console.error(err);
+        }
+      );
+    }
+  }, [hasLoggedIn]);
 
   return (
     <div className="App">

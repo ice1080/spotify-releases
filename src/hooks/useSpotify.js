@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildQueryString, generateState } from "../utils/spotify";
+import SpotifyWebApi from "spotify-web-api-js";
+
+const spotifyApi = new SpotifyWebApi();
 
 // Environment variables from `.env` file.
 const {
@@ -92,6 +95,7 @@ const useProvideSpotify = () => {
 
       setToken(accessToken);
       setTokenExp(expTimestamp);
+      spotifyApi.setAccessToken(accessToken);
     };
   };
 
@@ -201,6 +205,7 @@ const useProvideSpotify = () => {
       if (accessToken && expTimestamp && Number.isInteger(expTimestamp)) {
         setToken(accessToken);
         setTokenExp(expTimestamp);
+        spotifyApi.setAccessToken(accessToken);
       } else {
         setIsLoading(false);
       }
@@ -233,6 +238,7 @@ const useProvideSpotify = () => {
       return hasRedirectedFromValidPopup();
     },
     storeTokenAtRedirect,
+    spotifyApi,
     fetchCurrentUserInfo,
     fetchSearchResults,
   };
