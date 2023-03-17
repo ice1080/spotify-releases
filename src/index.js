@@ -1,24 +1,36 @@
 import React, { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { SpotifyProvider } from "./hooks/useSpotify";
+import SpotifyRedirect from "./components/SpotifyRedirect";
 import "./index.css";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />,
+    element: (
+      <SpotifyProvider>
+        <Outlet />
+      </SpotifyProvider>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <App />,
+      },
+      {
+        path: "/spotify-redirect",
+        element: <SpotifyRedirect />,
+      },
+    ],
   },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <StrictMode>
-    <RouterProvider router={router}>
-      <SpotifyProvider />
-    </RouterProvider>
+    <RouterProvider router={router} />
   </StrictMode>
 );
 
