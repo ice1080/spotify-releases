@@ -5,6 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { SpotifyProvider } from "./hooks/useSpotify";
 import SpotifyRedirect from "./components/SpotifyRedirect";
+import Home from "./components/Home";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path: "/spotify-redirect",
         element: <SpotifyRedirect />,
+      },
+      {
+        path: "/home",
+        element: <Home />,
       },
     ],
   },
