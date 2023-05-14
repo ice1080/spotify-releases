@@ -4,13 +4,13 @@ import { useSpotify } from "../hooks/useSpotify";
 export default function Home() {
   const ARTISTS_VIEW = "artists";
   const ALBUMS_VIEW = "albums";
-  const CUTOFF_DAYS_AGO = 500;
+  const CUTOFF_DAYS_AGO = 250;
   let CUTOFF_DATE;
 
   const { spotifyApi } = useSpotify();
   const [topArtists, setTopArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
-  const [currentView, setCurrentView] = useState(ARTISTS_VIEW);
+  const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
     spotifyApi.getMyTopArtists().then((data, err) => {
@@ -19,14 +19,14 @@ export default function Home() {
         if (b.popularity < a.popularity) return 1;
         return 0;
       });
-      console.log("artists", artists);
+      console.log("top artists", artists);
       setTopArtists(artists);
     });
   }, []);
 
   useEffect(() => {
     if (topArtists.length > 0) {
-      let localRecentAlbums = [];
+      let tempRecentAlbums = [];
       topArtists.forEach((artist, i) => {
         spotifyApi
           .getArtistAlbums(artist.id, { include_groups: "album" })
@@ -35,12 +35,6 @@ export default function Home() {
               console.error(err);
             }
             if (data.items && data.items.length) {
-              /* console.log(
-               *   `${artist.name} albums:`,
-               *   data.items.map(
-               *     (album) => `${album.name}: ${Date.parse(album.release_date)}`
-               *   )
-               * ); */
               const recentArtistAlbums = data.items
                 .filter(
                   (album) => Date.parse(album.release_date) > getCutoffDate()
@@ -49,20 +43,10 @@ export default function Home() {
                   album.artistName = artist.name;
                   return album;
                 });
-              console.log(
-                /* getCutoffDate(), */
-                `${artist.name} recent albums:`,
-                recentArtistAlbums
-              );
-              /* data.items.map((album) => album.release_date),
-               * data.items.map((album) => Date.parse(album.release_date)) */
-              /* ); */
+              console.log(`${artist.name} recent albums:`, recentArtistAlbums);
               if (recentArtistAlbums.length > 0) {
-                localRecentAlbums =
-                  localRecentAlbums.concat(recentArtistAlbums);
-                console.log("total recent albums: ", localRecentAlbums.length);
-                console.log("concat: ", localRecentAlbums);
-                setRecentAlbums(localRecentAlbums.concat(recentArtistAlbums));
+                tempRecentAlbums = tempRecentAlbums.concat(recentArtistAlbums);
+                setRecentAlbums(tempRecentAlbums.concat(recentArtistAlbums));
               }
             }
           });
@@ -101,20 +85,29 @@ export default function Home() {
   };
 
   const renderAlbums = () => {
+    // TODO remove duplicates by id, artist & album name
     return (
       <>
         <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
         <ul>
-          {recentAlbums.map((album, i) => {
-            return (
-              <li key={i}>
-                {album.artistName} - {album.name} - {album.release_date}
-                <ul>
-                  <li>spotify id: {album.id}</li>
-                </ul>
-              </li>
-            );
-          })}
+          {recentAlbums
+            .filter((element, idx, array) => {
+              return (
+                array.findIndex(
+                  (arrayElement) => arrayElement.id === element.id
+                ) === idx
+              );
+            })
+            .map((album, i) => {
+              return (
+                <li key={i}>
+                  {album.artistName} - {album.name} - {album.release_date}
+                  <ul>
+                    <li>spotify id: {album.id}</li>
+                  </ul>
+                </li>
+              );
+            })}
         </ul>
       </>
     );
