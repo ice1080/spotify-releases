@@ -11,15 +11,6 @@ export default function App() {
   useEffect(() => {
     if (hasLoggedIn) {
       navigate("/home");
-      /* console.log("calling stuff here");
-       * spotifyApi.getArtistAlbums("43ZHCT0cAZBISjO8DG9PnE").then(
-       *   function (data) {
-       *     console.log("Artist albums", data);
-       *   },
-       *   function (err) {
-       *     console.error(err);
-       *   }
-       * ); */
     }
   }, [hasLoggedIn]);
 
