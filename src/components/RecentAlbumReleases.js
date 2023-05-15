@@ -27,18 +27,12 @@ export default function RecentAlbumReleases({ recentAlbums }) {
   };
   const tableInstance = useReactTable(tableOptions);
 
+  recentAlbums &&
+    recentAlbums.length &&
+    console.log("recent albums render:", recentAlbums);
   return (
     <>
       <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
-      <ul>
-        {recentAlbums.map((album, i) => {
-          return (
-            <li key={i}>
-              {album.artistName} - {album.name} - {album.release_date}
-            </li>
-          );
-        })}
-      </ul>
       {recentAlbums && recentAlbums.length && (
         <table>
           <thead>

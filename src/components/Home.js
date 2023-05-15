@@ -43,10 +43,6 @@ export default function Home() {
                   return album;
                 });
               if (recentArtistAlbums.length > 0) {
-                console.log(
-                  `${artist.name} recent albums:`,
-                  recentArtistAlbums
-                );
                 tempRecentAlbums = tempRecentAlbums.concat(recentArtistAlbums);
                 setRecentAlbums(tempRecentAlbums);
               }
@@ -99,8 +95,12 @@ export default function Home() {
   const renderViewSelector = () => {
     return (
       <>
-        <button onClick={() => setCurrentView(ARTISTS_VIEW)}>Artists</button>
-        <button onClick={() => setCurrentView(ALBUMS_VIEW)}>Albums</button>
+        <button onClick={() => setCurrentView(ALBUMS_VIEW)}>
+          Recent Albums
+        </button>
+        <button onClick={() => setCurrentView(ARTISTS_VIEW)}>
+          Top Artists
+        </button>
       </>
     );
   };
