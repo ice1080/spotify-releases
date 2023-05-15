@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 export default function RecentAlbumReleases({ recentAlbums }) {
   const isDuplicateAlbum = (album1, album2) => {
@@ -8,22 +8,24 @@ export default function RecentAlbumReleases({ recentAlbums }) {
     );
   };
 
-  const filteredAlbums = recentAlbums.filter((el, idx, array) => {
-    return array.findIndex((arrayEl) => isDuplicateAlbum(arrayEl, el)) === idx;
-  });
+  const albumsToRender = recentAlbums
+    .filter((el, idx, array) => {
+      return (
+        array.findIndex((arrayEl) => isDuplicateAlbum(arrayEl, el)) === idx
+      );
+    })
+    .sort((a, b) => {
+      return new Date(b.release_date) - new Date(a.release_date);
+    });
 
-  // TODO remove duplicates by id, artist & album name
   return (
     <>
-      <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
+      <h1>Recent Album Releases ({albumsToRender.length} total)</h1>
       <ul>
-        {filteredAlbums.map((album, i) => {
+        {albumsToRender.map((album, i) => {
           return (
             <li key={i}>
               {album.artistName} - {album.name} - {album.release_date}
-              {/* <ul>
-                  <li>spotify id: {album.id}</li>
-                  </ul>*/}
             </li>
           );
         })}

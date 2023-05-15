@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSpotify } from "../hooks/useSpotify";
 import RecentAlbumReleases from "./RecentAlbumReleases";
+import TopArtists from "./TopArtists";
 
 export default function Home() {
   const ARTISTS_VIEW = "artists";
@@ -44,10 +45,13 @@ export default function Home() {
                   album.artistName = artist.name;
                   return album;
                 });
-              console.log(`${artist.name} recent albums:`, recentArtistAlbums);
               if (recentArtistAlbums.length > 0) {
+                console.log(
+                  `${artist.name} recent albums:`,
+                  recentArtistAlbums
+                );
                 tempRecentAlbums = tempRecentAlbums.concat(recentArtistAlbums);
-                setRecentAlbums(tempRecentAlbums.concat(recentArtistAlbums));
+                setRecentAlbums(tempRecentAlbums);
               }
             }
           });
@@ -66,30 +70,17 @@ export default function Home() {
 
   const renderCurrentView = () => {
     if (currentView === "artists") {
-      return renderArtists();
+      return <TopArtists topArtists={topArtists} />;
     } else if (currentView === "albums") {
       return <RecentAlbumReleases recentAlbums={recentAlbums} />;
     }
-  };
-
-  const renderArtists = () => {
-    return (
-      <>
-        <h1>Your Top Artists</h1>
-        <ul>
-          {topArtists.map((artist, i) => {
-            return <li key={i}>{artist.name}</li>;
-          })}
-        </ul>
-      </>
-    );
   };
 
   const renderViewSelector = () => {
     return (
       <>
         <button onClick={() => setCurrentView(ARTISTS_VIEW)}>Artists</button>
-        <button onClick={() => setCurrentView(ALBUMS_VIEW)}> Albums</button>
+        <button onClick={() => setCurrentView(ALBUMS_VIEW)}>Albums</button>
       </>
     );
   };
