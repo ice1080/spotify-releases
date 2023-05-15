@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSpotify } from "../hooks/useSpotify";
+import RecentAlbumReleases from "./RecentAlbumReleases";
 
 export default function Home() {
   const ARTISTS_VIEW = "artists";
@@ -67,7 +68,7 @@ export default function Home() {
     if (currentView === "artists") {
       return renderArtists();
     } else if (currentView === "albums") {
-      return renderAlbums();
+      return <RecentAlbumReleases recentAlbums={recentAlbums} />;
     }
   };
 
@@ -79,35 +80,6 @@ export default function Home() {
           {topArtists.map((artist, i) => {
             return <li key={i}>{artist.name}</li>;
           })}
-        </ul>
-      </>
-    );
-  };
-
-  const renderAlbums = () => {
-    // TODO remove duplicates by id, artist & album name
-    return (
-      <>
-        <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
-        <ul>
-          {recentAlbums
-            .filter((element, idx, array) => {
-              return (
-                array.findIndex(
-                  (arrayElement) => arrayElement.id === element.id
-                ) === idx
-              );
-            })
-            .map((album, i) => {
-              return (
-                <li key={i}>
-                  {album.artistName} - {album.name} - {album.release_date}
-                  <ul>
-                    <li>spotify id: {album.id}</li>
-                  </ul>
-                </li>
-              );
-            })}
         </ul>
       </>
     );
