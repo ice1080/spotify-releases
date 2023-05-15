@@ -33,9 +33,6 @@ export default function Home() {
         spotifyApi
           .getArtistAlbums(artist.id, { include_groups: "album" })
           .then((data, err) => {
-            if (err) {
-              console.error(err);
-            }
             if (data.items && data.items.length) {
               const recentArtistAlbums = data.items
                 .filter(
@@ -68,11 +65,34 @@ export default function Home() {
     return CUTOFF_DATE;
   };
 
+  const isDuplicateAlbum = (album1, album2) => {
+    return (
+      album1.id === album2.id ||
+      (album1.name === album2.name && album1.artistName === album2.artistName)
+    );
+  };
+
+  const filterAlbums = (albums) => {
+    if (albums) {
+      return albums
+        .filter((el, idx, array) => {
+          return (
+            array.findIndex((arrayEl) => isDuplicateAlbum(arrayEl, el)) === idx
+          );
+        })
+        .sort((a, b) => {
+          return new Date(b.release_date) - new Date(a.release_date);
+        });
+    } else {
+      return [];
+    }
+  };
+
   const renderCurrentView = () => {
     if (currentView === "artists") {
       return <TopArtists topArtists={topArtists} />;
     } else if (currentView === "albums") {
-      return <RecentAlbumReleases recentAlbums={recentAlbums} />;
+      return <RecentAlbumReleases recentAlbums={filterAlbums(recentAlbums)} />;
     }
   };
 

@@ -1,28 +1,37 @@
-import React from "react";
+import React, { useMemo } from "react";
+import {
+  useReactTable,
+  flexRender,
+  getCoreRowModel,
+} from "@tanstack/react-table";
 
 export default function RecentAlbumReleases({ recentAlbums }) {
-  const isDuplicateAlbum = (album1, album2) => {
-    return (
-      album1.id === album2.id ||
-      (album1.name === album2.name && album1.artistName === album2.artistName)
-    );
+  const columns = useMemo(() => [
+    {
+      header: "Artist",
+      accessorKey: "artistName",
+    },
+    {
+      header: "Album Name",
+      accessorKey: "name",
+    },
+    {
+      header: "Date Released",
+      accessorKey: "release_date",
+    },
+  ]);
+  const tableOptions = {
+    columns,
+    data: recentAlbums,
+    getCoreRowModel: getCoreRowModel(),
   };
-
-  const albumsToRender = recentAlbums
-    .filter((el, idx, array) => {
-      return (
-        array.findIndex((arrayEl) => isDuplicateAlbum(arrayEl, el)) === idx
-      );
-    })
-    .sort((a, b) => {
-      return new Date(b.release_date) - new Date(a.release_date);
-    });
+  const tableInstance = useReactTable(tableOptions);
 
   return (
     <>
-      <h1>Recent Album Releases ({albumsToRender.length} total)</h1>
+      <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
       <ul>
-        {albumsToRender.map((album, i) => {
+        {recentAlbums.map((album, i) => {
           return (
             <li key={i}>
               {album.artistName} - {album.name} - {album.release_date}
@@ -30,6 +39,35 @@ export default function RecentAlbumReleases({ recentAlbums }) {
           );
         })}
       </ul>
+      {recentAlbums && recentAlbums.length && (
+        <table>
+          <thead>
+            {tableInstance.getHeaderGroups().map((headerGroup) => (
+              <tr {...headerGroup.props}>
+                {headerGroup.headers.map((header) => (
+                  <th {...header.props}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {tableInstance.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </>
   );
 }
