@@ -6,7 +6,18 @@ import {
 } from "@tanstack/react-table";
 
 export default function RecentAlbumReleases({ recentAlbums }) {
+  const getImageHref = (info) => {
+    if (info.images && info.images.length) {
+      return info.images[0].url;
+    }
+  };
+
   const columns = useMemo(() => [
+    {
+      header: "Image",
+      accessorFn: getImageHref,
+      cell: (props) => <img className={"albumImage"} src={props.getValue()} />,
+    },
     {
       header: "Artist",
       accessorKey: "artistName",
@@ -37,9 +48,9 @@ export default function RecentAlbumReleases({ recentAlbums }) {
         <table>
           <thead>
             {tableInstance.getHeaderGroups().map((headerGroup) => (
-              <tr {...headerGroup.props}>
+              <tr {...headerGroup.props} key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th {...header.props}>
+                  <th {...header.props} key={header.id}>
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()

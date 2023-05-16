@@ -1,3 +1,7 @@
+body {
+  font-size: 16px;
+}
+
 .App {
   text-align: center;
 }
@@ -45,4 +49,14 @@ table {
 td {
   border: 1px solid black;
   padding: 10px;
+}
+
+td:has(.albumImage) {
+  padding: 0;
+}
+
+.albumImage {
+  width: 64px;
+  height: 64px;
+  display: block;
 }

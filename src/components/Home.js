@@ -15,39 +15,45 @@ export default function Home() {
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
-    spotifyApi.getMyTopArtists().then((data, err) => {
-      const artists = data.items.sort((a, b) => {
-        if (a.popularity > b.popularity) return -1;
-        if (b.popularity < a.popularity) return 1;
-        return 0;
+    spotifyApi
+      .getMyTopArtists({ time_range: "long_term" })
+      .then((data, err) => {
+        const artists = data.items.sort((a, b) => {
+          if (a.popularity > b.popularity) return -1;
+          if (b.popularity < a.popularity) return 1;
+          return 0;
+        });
+        console.log("top artists", artists);
+        setTopArtists(artists);
       });
-      console.log("top artists", artists);
-      setTopArtists(artists);
-    });
   }, []);
 
   useEffect(() => {
     if (topArtists.length > 0) {
       let tempRecentAlbums = [];
       topArtists.forEach((artist, i) => {
-        spotifyApi
-          .getArtistAlbums(artist.id, { include_groups: "album" })
-          .then((data, err) => {
-            if (data.items && data.items.length) {
-              const recentArtistAlbums = data.items
-                .filter(
-                  (album) => Date.parse(album.release_date) > getCutoffDate()
-                )
-                .map((album) => {
-                  album.artistName = artist.name;
-                  return album;
-                });
-              if (recentArtistAlbums.length > 0) {
-                tempRecentAlbums = tempRecentAlbums.concat(recentArtistAlbums);
-                setRecentAlbums(tempRecentAlbums);
+        if (!artist.recentAlbums) {
+          spotifyApi
+            .getArtistAlbums(artist.id, { include_groups: "album" })
+            .then((data, err) => {
+              if (data.items && data.items.length) {
+                const recentArtistAlbums = data.items
+                  .filter(
+                    (album) => Date.parse(album.release_date) > getCutoffDate()
+                  )
+                  .map((album) => {
+                    album.artistName = artist.name;
+                    return album;
+                  });
+                artist.recentAlbums = recentArtistAlbums;
+                if (recentArtistAlbums.length > 0) {
+                  tempRecentAlbums =
+                    tempRecentAlbums.concat(recentArtistAlbums);
+                  setRecentAlbums(tempRecentAlbums);
+                }
               }
-            }
-          });
+            });
+        }
       });
     }
   }, [topArtists]);
