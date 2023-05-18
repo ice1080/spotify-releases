@@ -12,6 +12,7 @@ export default function Home() {
   const { spotifyApi } = useSpotify();
   const [topArtists, setTopArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
+  const [savedAlbumBooleans, setSavedAlbumBooleans] = useState([]);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function Home() {
           if (b.popularity < a.popularity) return 1;
           return 0;
         });
-        console.log("top artists", artists);
+        /* console.log("top artists", artists); */
         setTopArtists(artists);
       });
   }, []);
@@ -36,6 +37,9 @@ export default function Home() {
           spotifyApi
             .getArtistAlbums(artist.id, { include_groups: "album" })
             .then((data, err) => {
+              // TODO might have to change this to async/await, in order to get the saved albums to have the correct length
+              // TODO could alternatively not save to recent albums until it is fully returned?
+              // TODO could alternatively make an endpoint call for each album? :-1: because of quantity of api calls
               if (data.items && data.items.length) {
                 const recentArtistAlbums = data.items
                   .filter(
@@ -58,6 +62,28 @@ export default function Home() {
     }
   }, [topArtists]);
 
+  useEffect(() => {
+    if (recentAlbums.length > 0) {
+      /* console.log(
+       *   "stuff",
+       *   recentAlbums[0],
+       *   recentAlbums[0].isAlbumSaved,
+       *   recentAlbums[0].isAlbumSaved === undefined,
+       *   recentAlbums.indexOf((alb) => alb.isAlbumSaved === undefined)
+       * ); */
+      /* if (recentAlbums.indexOf((alb) => alb.isAlbumSaved === undefined) > -1) { */
+      const albumIds = recentAlbums.map((alb) => alb.id);
+      spotifyApi.containsMySavedAlbums(albumIds).then((savedBooleans, err) => {
+        setSavedAlbumBooleans(savedBooleans);
+        /* savedBooleans.forEach((isAlbumSaved, idx) => {
+         *   recentAlbums[idx].isAlbumSaved = isAlbumSaved;
+         * }); */
+        /* setRecentAlbums(recentAlbums); */
+      });
+      /* } */
+    }
+  }, [recentAlbums]);
+
   const getCutoffDate = () => {
     if (!CUTOFF_DATE) {
       let d = new Date();
@@ -76,7 +102,7 @@ export default function Home() {
 
   const filterAlbums = (albums) => {
     if (albums) {
-      return albums
+      const filtered = albums
         .filter((el, idx, array) => {
           return (
             array.findIndex((arrayEl) => isDuplicateAlbum(arrayEl, el)) === idx
@@ -85,6 +111,22 @@ export default function Home() {
         .sort((a, b) => {
           return new Date(b.release_date) - new Date(a.release_date);
         });
+      /* console.log(savedAlbumBooleans); */
+      if (savedAlbumBooleans && savedAlbumBooleans.length) {
+        /* console.log(
+         *   "combining",
+         *   filtered.map((alb, idx) =>
+         *     Object.assign({ isAlbumSaved: savedAlbumBooleans[idx] }, alb)
+         *   )
+         * ); */
+        /* return filtered.map((alb, idx) =>
+         *   Object.assign({ isAlbumSaved: savedAlbumBooleans[idx] }, alb)
+         * ); */
+        // todo figure out above
+        return filtered;
+      } else {
+        return filtered;
+      }
     } else {
       return [];
     }

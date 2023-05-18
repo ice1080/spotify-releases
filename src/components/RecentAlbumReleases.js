@@ -4,11 +4,28 @@ import {
   flexRender,
   getCoreRowModel,
 } from "@tanstack/react-table";
+import Favorite from "@mui/icons-material/Favorite";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import QuestionMark from "@mui/icons-material/QuestionMark";
 
 export default function RecentAlbumReleases({ recentAlbums }) {
   const getImageHref = (info) => {
     if (info.images && info.images.length) {
       return info.images[0].url;
+    }
+  };
+
+  const getSavedCell = (props) => {
+    // todo handle onClick
+    const value = props.getValue();
+    /* const value = true; */
+    const sx = { color: "green" };
+    if (value === undefined) {
+      return <QuestionMark />;
+    } else if (value) {
+      return <Favorite sx={sx} />;
+    } else {
+      return <FavoriteBorder sx={sx} />;
     }
   };
 
@@ -29,6 +46,11 @@ export default function RecentAlbumReleases({ recentAlbums }) {
     {
       header: "Date Released",
       accessorKey: "release_date",
+    },
+    {
+      header: "Saved",
+      accessKey: "isAlbumSaved",
+      cell: getSavedCell,
     },
   ]);
   const tableOptions = {
