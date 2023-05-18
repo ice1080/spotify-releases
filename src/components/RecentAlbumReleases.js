@@ -46,6 +46,12 @@ export default function RecentAlbumReleases({ recentAlbums }) {
     {
       header: "Date Released",
       accessorKey: "release_date",
+      cell: (props) =>
+        new Date(Date.parse(props.getValue())).toLocaleDateString("en-us", {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+        }),
     },
     {
       header: "Saved",
