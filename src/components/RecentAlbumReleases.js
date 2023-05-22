@@ -92,7 +92,7 @@ export default function RecentAlbumReleases({ recentAlbums }) {
             {tableInstance.getRowModel().rows.map((row) => (
               <tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id + cell.getValue()}>
+                  <td key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

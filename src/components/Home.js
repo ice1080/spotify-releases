@@ -91,9 +91,11 @@ export default function Home() {
   };
 
   const isDuplicateAlbum = (album1, album2) => {
+    // todo figure out a better way to display duplicate albums
     return (
-      album1.id === album2.id ||
-      (album1.name === album2.name && album1.artistName === album2.artistName)
+      album1.id === album2.id
+      /* || */
+      /* (album1.name === album2.name && album1.artistName === album2.artistName) */
     );
   };
 
