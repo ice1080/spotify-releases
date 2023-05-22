@@ -18,7 +18,7 @@ export default function RecentAlbumReleases({ recentAlbums }) {
   const getSavedCell = (props) => {
     // todo handle onClick
     const value = props.getValue();
-    /* const value = true; */
+    /* console.log("value", value); */
     const sx = { color: "green" };
     if (value === undefined) {
       return <QuestionMark />;
@@ -55,7 +55,7 @@ export default function RecentAlbumReleases({ recentAlbums }) {
     },
     {
       header: "Saved",
-      accessKey: "isAlbumSaved",
+      accessorKey: "isAlbumSaved",
       cell: getSavedCell,
     },
   ]);
@@ -92,7 +92,7 @@ export default function RecentAlbumReleases({ recentAlbums }) {
             {tableInstance.getRowModel().rows.map((row) => (
               <tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
+                  <td key={cell.id + cell.getValue()}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

@@ -31,56 +31,53 @@ export default function Home() {
 
   useEffect(() => {
     if (topArtists.length > 0) {
-      let tempRecentAlbums = [];
+      let allRecentAlbums = [];
+      let artistAlbumPromises = [];
+      let localTopArtists = [...topArtists];
       topArtists.forEach((artist, i) => {
         if (!artist.recentAlbums) {
-          spotifyApi
-            .getArtistAlbums(artist.id, { include_groups: "album" })
-            .then((data, err) => {
-              // TODO might have to change this to async/await, in order to get the saved albums to have the correct length
-              // TODO could alternatively not save to recent albums until it is fully returned?
-              // TODO could alternatively make an endpoint call for each album? :-1: because of quantity of api calls
-              if (data.items && data.items.length) {
-                const recentArtistAlbums = data.items
-                  .filter(
-                    (album) => Date.parse(album.release_date) > getCutoffDate()
-                  )
-                  .map((album) => {
-                    album.artistName = artist.name;
-                    return album;
-                  });
-                artist.recentAlbums = recentArtistAlbums;
-                if (recentArtistAlbums.length > 0) {
-                  tempRecentAlbums =
-                    tempRecentAlbums.concat(recentArtistAlbums);
-                  setRecentAlbums(tempRecentAlbums);
-                }
-              }
-            });
+          artistAlbumPromises.push(
+            spotifyApi.getArtistAlbums(artist.id, {
+              include_groups: "album",
+            })
+          );
         }
+      });
+      Promise.all(artistAlbumPromises).then((values) => {
+        values.forEach((data, i) => {
+          if (data.items && data.items.length) {
+            const recentArtistAlbums = data.items
+              .filter(
+                (album) => Date.parse(album.release_date) > getCutoffDate()
+              )
+              .map((album) => {
+                album.artistName = localTopArtists[i].name;
+                return album;
+              });
+            if (recentArtistAlbums.length > 0) {
+              allRecentAlbums = allRecentAlbums.concat(recentArtistAlbums);
+            }
+          }
+        });
+        setRecentAlbums(allRecentAlbums);
       });
     }
   }, [topArtists]);
 
   useEffect(() => {
     if (recentAlbums.length > 0) {
-      /* console.log(
-       *   "stuff",
-       *   recentAlbums[0],
-       *   recentAlbums[0].isAlbumSaved,
-       *   recentAlbums[0].isAlbumSaved === undefined,
-       *   recentAlbums.indexOf((alb) => alb.isAlbumSaved === undefined)
-       * ); */
-      /* if (recentAlbums.indexOf((alb) => alb.isAlbumSaved === undefined) > -1) { */
-      const albumIds = recentAlbums.map((alb) => alb.id);
+      const albumIds = recentAlbums
+        .filter((album) => album.isAlbumSaved === undefined)
+        .map((alb) => alb.id);
       spotifyApi.containsMySavedAlbums(albumIds).then((savedBooleans, err) => {
         setSavedAlbumBooleans(savedBooleans);
-        /* savedBooleans.forEach((isAlbumSaved, idx) => {
-         *   recentAlbums[idx].isAlbumSaved = isAlbumSaved;
-         * }); */
-        /* setRecentAlbums(recentAlbums); */
+        savedBooleans.forEach((isAlbumSaved, idx) => {
+          recentAlbums[idx].isAlbumSaved = isAlbumSaved;
+        });
+        // todo fix this, because if this gets called multiple times then it won't work right because of the above filter
+        console.log("done getting saved albums");
+        setRecentAlbums(recentAlbums);
       });
-      /* } */
     }
   }, [recentAlbums]);
 
@@ -102,7 +99,7 @@ export default function Home() {
 
   const filterAlbums = (albums) => {
     if (albums) {
-      const filtered = albums
+      return albums
         .filter((el, idx, array) => {
           return (
             array.findIndex((arrayEl) => isDuplicateAlbum(arrayEl, el)) === idx
@@ -111,22 +108,6 @@ export default function Home() {
         .sort((a, b) => {
           return new Date(b.release_date) - new Date(a.release_date);
         });
-      /* console.log(savedAlbumBooleans); */
-      if (savedAlbumBooleans && savedAlbumBooleans.length) {
-        /* console.log(
-         *   "combining",
-         *   filtered.map((alb, idx) =>
-         *     Object.assign({ isAlbumSaved: savedAlbumBooleans[idx] }, alb)
-         *   )
-         * ); */
-        /* return filtered.map((alb, idx) =>
-         *   Object.assign({ isAlbumSaved: savedAlbumBooleans[idx] }, alb)
-         * ); */
-        // todo figure out above
-        return filtered;
-      } else {
-        return filtered;
-      }
     } else {
       return [];
     }
