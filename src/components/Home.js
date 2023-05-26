@@ -12,7 +12,6 @@ export default function Home() {
   const { spotifyApi } = useSpotify();
   const [topArtists, setTopArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
-  const [savedAlbumBooleans, setSavedAlbumBooleans] = useState([]);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
@@ -66,17 +65,16 @@ export default function Home() {
 
   useEffect(() => {
     if (recentAlbums.length > 0) {
+      let tempRecentAlbums = [...recentAlbums];
       const albumIds = recentAlbums
         .filter((album) => album.isAlbumSaved === undefined)
         .map((alb) => alb.id);
       spotifyApi.containsMySavedAlbums(albumIds).then((savedBooleans, err) => {
-        setSavedAlbumBooleans(savedBooleans);
         savedBooleans.forEach((isAlbumSaved, idx) => {
-          recentAlbums[idx].isAlbumSaved = isAlbumSaved;
+          tempRecentAlbums[idx].isAlbumSaved = isAlbumSaved;
         });
-        // todo fix this, because if this gets called multiple times then it won't work right because of the above filter
         console.log("done getting saved albums");
-        setRecentAlbums(recentAlbums);
+        setRecentAlbums(tempRecentAlbums);
       });
     }
   }, [recentAlbums]);
