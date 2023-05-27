@@ -20,7 +20,9 @@ export default function App() {
         <img src={logo} className="App-logo" alt="logo" />
         Spotify Releases
       </header>
-      <button onClick={login}>Login</button>
+      <button autoFocus onClick={login}>
+        Login
+      </button>
       <div>hasLoggedIn: {"" + hasLoggedIn}</div>
     </div>
   );

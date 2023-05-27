@@ -34,13 +34,14 @@ export default function Home() {
       let artistAlbumPromises = [];
       let localTopArtists = [...topArtists];
       topArtists.forEach((artist, i) => {
-        if (!artist.recentAlbums) {
-          artistAlbumPromises.push(
-            spotifyApi.getArtistAlbums(artist.id, {
-              include_groups: "album",
-            })
-          );
-        }
+        // this may be needed once more artists are added (e.g. hundreds)
+        /* if (!artist.recentAlbums) { */
+        artistAlbumPromises.push(
+          spotifyApi.getArtistAlbums(artist.id, {
+            include_groups: "album",
+          })
+        );
+        /* } */
       });
       Promise.all(artistAlbumPromises).then((values) => {
         values.forEach((data, i) => {
