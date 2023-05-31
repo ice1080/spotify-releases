@@ -9,28 +9,30 @@ export default function Home() {
   const CUTOFF_DAYS_AGO = 250;
   let CUTOFF_DATE;
 
-  const { spotifyApi } = useSpotify();
+  const { spotifyApi, hasLoggedIn } = useSpotify();
   const [topArtists, setTopArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
-    spotifyApi
-      .getMyTopArtists({ time_range: "long_term" })
-      .then((data, err) => {
-        const artists = data.items.sort((a, b) => {
-          if (a.popularity > b.popularity) return -1;
-          if (b.popularity < a.popularity) return 1;
-          return 0;
+    if (hasLoggedIn) {
+      spotifyApi
+        .getMyTopArtists({ time_range: "long_term" })
+        .then((data, err) => {
+          const artists = data.items.sort((a, b) => {
+            if (a.popularity > b.popularity) return -1;
+            if (b.popularity < a.popularity) return 1;
+            return 0;
+          });
+          /* console.log("top artists", artists); */
+          setTopArtists(artists);
         });
-        /* console.log("top artists", artists); */
-        setTopArtists(artists);
-      });
-  }, []);
+    }
+  }, [hasLoggedIn]);
 
   useEffect(() => {
     if (topArtists.length > 0) {
-      let allRecentAlbums = [];
+      let allRecentAlbums = {};
       let artistAlbumPromises = [];
       let localTopArtists = [...topArtists];
       topArtists.forEach((artist, i) => {
@@ -55,28 +57,34 @@ export default function Home() {
                 return album;
               });
             if (recentArtistAlbums.length > 0) {
-              allRecentAlbums = allRecentAlbums.concat(recentArtistAlbums);
+              recentArtistAlbums.map(
+                (item) => (allRecentAlbums[item.id] = item)
+              );
             }
           }
         });
+        /* console.log("recent albums", allRecentAlbums); */
         setRecentAlbums(allRecentAlbums);
       });
     }
   }, [topArtists]);
 
   useEffect(() => {
-    if (recentAlbums.length > 0) {
-      let tempRecentAlbums = [...recentAlbums];
-      const albumIds = recentAlbums
-        .filter((album) => album.isAlbumSaved === undefined)
-        .map((alb) => alb.id);
-      spotifyApi.containsMySavedAlbums(albumIds).then((savedBooleans, err) => {
-        savedBooleans.forEach((isAlbumSaved, idx) => {
-          tempRecentAlbums[idx].isAlbumSaved = isAlbumSaved;
-        });
-        console.log("done getting saved albums");
-        setRecentAlbums(tempRecentAlbums);
-      });
+    if (Object.keys(recentAlbums).length > 0) {
+      let tempRecentAlbums = { ...recentAlbums };
+      const albumIds = Object.keys(recentAlbums).filter(
+        (albumId) => recentAlbums[albumId].isAlbumSaved === undefined
+      );
+      if (albumIds.length) {
+        spotifyApi
+          .containsMySavedAlbums(albumIds)
+          .then((savedBooleans, err) => {
+            savedBooleans.forEach((isAlbumSaved, idx) => {
+              tempRecentAlbums[albumIds[idx]].isAlbumSaved = isAlbumSaved;
+            });
+            setRecentAlbums(tempRecentAlbums);
+          });
+      }
     }
   }, [recentAlbums]);
 
@@ -100,15 +108,19 @@ export default function Home() {
 
   const filterAlbums = (albums) => {
     if (albums) {
-      return albums
-        .filter((el, idx, array) => {
-          return (
-            array.findIndex((arrayEl) => isDuplicateAlbum(arrayEl, el)) === idx
-          );
-        })
-        .sort((a, b) => {
-          return new Date(b.release_date) - new Date(a.release_date);
-        });
+      return (
+        Object.values(albums)
+          /* .filter((albumId, idx, array) => {
+           *   return (
+           *     array.findIndex((arrayEl) =>
+           *       isDuplicateAlbum(albums[arrayEl], albums[albumId])
+           *     ) === idx
+           *   );
+           * }) */
+          .sort((a, b) => {
+            return new Date(b.release_date) - new Date(a.release_date);
+          })
+      );
     } else {
       return [];
     }
