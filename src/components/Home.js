@@ -7,6 +7,8 @@ export default function Home() {
   const ARTISTS_VIEW = "artists";
   const ALBUMS_VIEW = "albums";
   const CUTOFF_DAYS_AGO = 250;
+  const MAX_ARTISTS_LIMIT = 101;
+  const TOP_ARTISTS_LIMIT = 49;
   let CUTOFF_DATE;
 
   const { spotifyApi, hasLoggedIn } = useSpotify();
@@ -16,17 +18,30 @@ export default function Home() {
 
   useEffect(() => {
     if (hasLoggedIn) {
-      spotifyApi
-        .getMyTopArtists({ time_range: "long_term" })
-        .then((data, err) => {
-          const artists = data.items.sort((a, b) => {
-            if (a.popularity > b.popularity) return -1;
-            if (b.popularity < a.popularity) return 1;
-            return 0;
-          });
-          /* console.log("top artists", artists); */
-          setTopArtists(artists);
+      let localTopArtists = [];
+      let artistPromises = [];
+      let artistLimitArray = [50, 50];
+      artistLimitArray.forEach((limit, i) => {
+        artistPromises.push(
+          spotifyApi.getMyTopArtists({
+            time_range: "long_term",
+            limit: limit,
+            offset: i * TOP_ARTISTS_LIMIT,
+          })
+        );
+      });
+      Promise.all(artistPromises).then((artistsList) => {
+        artistsList.forEach((values) => {
+          localTopArtists = localTopArtists.concat(values.items);
         });
+        localTopArtists = localTopArtists.sort((a, b) => {
+          if (a.popularity > b.popularity) return -1;
+          if (b.popularity < a.popularity) return 1;
+          return 0;
+        });
+        /* console.log("top artists", localTopArtists); */
+        setTopArtists(localTopArtists);
+      });
     }
   }, [hasLoggedIn]);
 
@@ -35,7 +50,7 @@ export default function Home() {
       let allRecentAlbums = {};
       let artistAlbumPromises = [];
       let localTopArtists = [...topArtists];
-      topArtists.forEach((artist, i) => {
+      topArtists.forEach((artist) => {
         // this may be needed once more artists are added (e.g. hundreds)
         /* if (!artist.recentAlbums) { */
         artistAlbumPromises.push(
