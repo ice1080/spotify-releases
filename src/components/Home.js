@@ -17,6 +17,7 @@ export default function Home() {
   const [topArtists, setTopArtists] = useState([]);
   const [savedAlbumArtists, setSavedAlbumArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
+  const [includeSavedAlbums, setIncludeSavedAlbums] = useState(false);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
@@ -28,7 +29,10 @@ export default function Home() {
 
   useEffect(() => {
     console.log("effect", topArtists.length, savedAlbumArtists.length);
-    if (topArtists.length > 0 && savedAlbumArtists.length > 0) {
+    if (
+      topArtists.length > 0 &&
+      (savedAlbumArtists.length > 0 || !includeSavedAlbums)
+    ) {
       getAllRecentAlbums();
     }
   }, [topArtists, savedAlbumArtists]);
@@ -81,71 +85,73 @@ export default function Home() {
   };
 
   const getAllSavedAlbums = () => {
-    let albumPromises = [];
-    for (let i = 0; i < 20; i++) {
-      albumPromises.push(
-        spotifyApi.getMySavedAlbums({
-          limit: 50,
-          offset: i * SAVED_ALBUMS_LIMIT,
-        })
-      );
-    }
-    Promise.all(albumPromises).then((albumsList) => {
-      let localSavedAlbums = [];
-      albumsList.forEach((values) => {
-        localSavedAlbums = localSavedAlbums.concat(
-          values.items.map((el) => el.album)
+    if (includeSavedAlbums) {
+      let albumPromises = [];
+      for (let i = 0; i < 20; i++) {
+        albumPromises.push(
+          spotifyApi.getMySavedAlbums({
+            limit: 50,
+            offset: i * SAVED_ALBUMS_LIMIT,
+          })
         );
-      });
-      let artistSavedAlbumCount = {};
-      let minSavedCountArtists = new Set();
-      localSavedAlbums.forEach((album) => {
-        album.artists.forEach((artist) => {
-          let newCount = 1;
-          if (artistSavedAlbumCount[artist.name]) {
-            newCount = artistSavedAlbumCount[artist.name].count + 1;
-            artistSavedAlbumCount[artist.name].count = newCount;
-          } else {
-            artistSavedAlbumCount[artist.name] = {
-              count: newCount,
-              artist: artist,
-            };
-          }
-          if (newCount === ARTIST_MIN_SAVED_ALBUM_COUNT) {
-            minSavedCountArtists.add(artist);
-          }
+      }
+      Promise.all(albumPromises).then((albumsList) => {
+        let localSavedAlbums = [];
+        albumsList.forEach((values) => {
+          localSavedAlbums = localSavedAlbums.concat(
+            values.items.map((el) => el.album)
+          );
         });
-      });
-      /* const filteredTest = Object.keys(artistSavedAlbumCount)
-       *   .filter(
-       *     (artistName) =>
-       *       artistSavedAlbumCount[artistName].count >=
-       *       ARTIST_MIN_SAVED_ALBUM_COUNT
-       *   )
-       *   .reduce(
-       *     (res, key) =>
-       *       Object.assign(res, { [key]: artistSavedAlbumCount[key] }),
-       *     {}
-       *   ); */
+        let artistSavedAlbumCount = {};
+        let minSavedCountArtists = new Set();
+        localSavedAlbums.forEach((album) => {
+          album.artists.forEach((artist) => {
+            let newCount = 1;
+            if (artistSavedAlbumCount[artist.name]) {
+              newCount = artistSavedAlbumCount[artist.name].count + 1;
+              artistSavedAlbumCount[artist.name].count = newCount;
+            } else {
+              artistSavedAlbumCount[artist.name] = {
+                count: newCount,
+                artist: artist,
+              };
+            }
+            if (newCount === ARTIST_MIN_SAVED_ALBUM_COUNT) {
+              minSavedCountArtists.add(artist);
+            }
+          });
+        });
+        /* const filteredTest = Object.keys(artistSavedAlbumCount)
+         *   .filter(
+         *     (artistName) =>
+         *       artistSavedAlbumCount[artistName].count >=
+         *       ARTIST_MIN_SAVED_ALBUM_COUNT
+         *   )
+         *   .reduce(
+         *     (res, key) =>
+         *       Object.assign(res, { [key]: artistSavedAlbumCount[key] }),
+         *     {}
+         *   ); */
 
-      /* console.log("localSavedAlbums", localSavedAlbums); */
-      /* console.log(
-       *   "artistSavedAlbumCount",
-       *   artistSavedAlbumCount,
-       *   Object.keys(artistSavedAlbumCount).length
-       * ); */
-      /* console.log(
-       *   `artists with more than ${ARTIST_MIN_SAVED_ALBUM_COUNT} saved albums`,
-       *   filteredTest,
-       *   Object.keys(filteredTest).length
-       * ); */
-      console.log(
-        "savedAlbumArtists",
-        minSavedCountArtists,
-        minSavedCountArtists.size
-      );
-      setSavedAlbumArtists(Array.from(minSavedCountArtists));
-    });
+        /* console.log("localSavedAlbums", localSavedAlbums); */
+        /* console.log(
+         *   "artistSavedAlbumCount",
+         *   artistSavedAlbumCount,
+         *   Object.keys(artistSavedAlbumCount).length
+         * ); */
+        /* console.log(
+         *   `artists with more than ${ARTIST_MIN_SAVED_ALBUM_COUNT} saved albums`,
+         *   filteredTest,
+         *   Object.keys(filteredTest).length
+         * ); */
+        console.log(
+          "savedAlbumArtists",
+          minSavedCountArtists,
+          minSavedCountArtists.size
+        );
+        setSavedAlbumArtists(Array.from(minSavedCountArtists));
+      });
+    }
   };
 
   const getAllRecentAlbums = () => {
@@ -186,17 +192,13 @@ export default function Home() {
     topArtists.forEach((artist) => {
       combined[artist.id] = artist;
     });
-    console.log(
-      "combined with top artists",
-      combined,
-      Object.keys(combined).length
-    );
-    savedAlbumArtists.forEach((artist) => {
-      if (!combined[artist.id]) {
-        combined[artist.id] = artist;
-      }
-    });
-    console.log("combined with all", combined, Object.keys(combined).length);
+    if (includeSavedAlbums) {
+      savedAlbumArtists.forEach((artist) => {
+        if (!combined[artist.id]) {
+          combined[artist.id] = artist;
+        }
+      });
+    }
     return Object.values(combined);
   };
 
