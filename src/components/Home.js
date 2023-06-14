@@ -15,6 +15,7 @@ export default function Home() {
 
   const { spotifyApi, hasLoggedIn } = useSpotify();
   const [topArtists, setTopArtists] = useState([]);
+  const [savedAlbumArtists, setSavedAlbumArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
@@ -26,10 +27,11 @@ export default function Home() {
   }, [hasLoggedIn]);
 
   useEffect(() => {
-    if (topArtists.length > 0) {
+    console.log("effect", topArtists.length, savedAlbumArtists.length);
+    if (topArtists.length > 0 && savedAlbumArtists.length > 0) {
       getAllRecentAlbums();
     }
-  }, [topArtists]);
+  }, [topArtists, savedAlbumArtists]);
 
   useEffect(() => {
     if (Object.keys(recentAlbums).length > 0) {
@@ -73,7 +75,7 @@ export default function Home() {
         if (b.popularity < a.popularity) return 1;
         return 0;
       });
-      /* console.log("top artists", localTopArtists); */
+      console.log("top artists", localTopArtists, localTopArtists.length);
       setTopArtists(localTopArtists);
     });
   };
@@ -99,17 +101,18 @@ export default function Home() {
       let minSavedCountArtists = new Set();
       localSavedAlbums.forEach((album) => {
         album.artists.forEach((artist) => {
+          let newCount = 1;
           if (artistSavedAlbumCount[artist.name]) {
-            const newCount = artistSavedAlbumCount[artist.name].count + 1;
+            newCount = artistSavedAlbumCount[artist.name].count + 1;
             artistSavedAlbumCount[artist.name].count = newCount;
-            if (newCount === ARTIST_MIN_SAVED_ALBUM_COUNT) {
-              minSavedCountArtists.add(artist);
-            }
           } else {
             artistSavedAlbumCount[artist.name] = {
-              count: 1,
+              count: newCount,
               artist: artist,
             };
+          }
+          if (newCount === ARTIST_MIN_SAVED_ALBUM_COUNT) {
+            minSavedCountArtists.add(artist);
           }
         });
       });
@@ -136,15 +139,20 @@ export default function Home() {
        *   filteredTest,
        *   Object.keys(filteredTest).length
        * ); */
-      console.log("alt", minSavedCountArtists, minSavedCountArtists.size);
+      console.log(
+        "savedAlbumArtists",
+        minSavedCountArtists,
+        minSavedCountArtists.size
+      );
+      setSavedAlbumArtists(Array.from(minSavedCountArtists));
     });
   };
 
   const getAllRecentAlbums = () => {
     let allRecentAlbums = {};
     let artistAlbumPromises = [];
-    let localTopArtists = [...topArtists];
-    topArtists.forEach((artist) => {
+    let allArtists = combineArtistLists();
+    allArtists.forEach((artist) => {
       // this may be needed once more artists are added (e.g. hundreds)
       /* if (!artist.recentAlbums) { */
       artistAlbumPromises.push(
@@ -160,7 +168,7 @@ export default function Home() {
           const recentArtistAlbums = data.items
             .filter((album) => Date.parse(album.release_date) > getCutoffDate())
             .map((album) => {
-              album.artistName = localTopArtists[i].name;
+              album.artistName = allArtists[i].name;
               return album;
             });
           if (recentArtistAlbums.length > 0) {
@@ -171,6 +179,25 @@ export default function Home() {
       /* console.log("recent albums", allRecentAlbums); */
       setRecentAlbums(allRecentAlbums);
     });
+  };
+
+  const combineArtistLists = () => {
+    let combined = {};
+    topArtists.forEach((artist) => {
+      combined[artist.id] = artist;
+    });
+    console.log(
+      "combined with top artists",
+      combined,
+      Object.keys(combined).length
+    );
+    savedAlbumArtists.forEach((artist) => {
+      if (!combined[artist.id]) {
+        combined[artist.id] = artist;
+      }
+    });
+    console.log("combined with all", combined, Object.keys(combined).length);
+    return Object.values(combined);
   };
 
   const getCutoffDate = () => {
