@@ -17,7 +17,7 @@ export default function Home() {
   const [topArtists, setTopArtists] = useState([]);
   const [savedAlbumArtists, setSavedAlbumArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
-  const [includeSavedAlbums, setIncludeSavedAlbums] = useState(false);
+  const [includeSavedAlbums, setIncludeSavedAlbums] = useState(true);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
@@ -28,14 +28,13 @@ export default function Home() {
   }, [hasLoggedIn]);
 
   useEffect(() => {
-    console.log("effect", topArtists.length, savedAlbumArtists.length);
     if (
       topArtists.length > 0 &&
       (savedAlbumArtists.length > 0 || !includeSavedAlbums)
     ) {
       getAllRecentAlbums();
     }
-  }, [topArtists, savedAlbumArtists]);
+  }, [topArtists, savedAlbumArtists, includeSavedAlbums]);
 
   useEffect(() => {
     if (Object.keys(recentAlbums).length > 0) {
@@ -244,7 +243,13 @@ export default function Home() {
     if (currentView === "artists") {
       return <TopArtists topArtists={topArtists} />;
     } else if (currentView === "albums") {
-      return <RecentAlbumReleases recentAlbums={filterAlbums(recentAlbums)} />;
+      return (
+        <RecentAlbumReleases
+          recentAlbums={filterAlbums(recentAlbums)}
+          includeSavedAlbums={includeSavedAlbums}
+          setIncludeSavedAlbums={setIncludeSavedAlbums}
+        />
+      );
     }
   };
 

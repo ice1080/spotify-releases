@@ -8,7 +8,11 @@ import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import QuestionMark from "@mui/icons-material/QuestionMark";
 
-export default function RecentAlbumReleases({ recentAlbums }) {
+export default function RecentAlbumReleases({
+  recentAlbums,
+  includeSavedAlbums,
+  setIncludeSavedAlbums,
+}) {
   const getImageHref = (info) => {
     if (info.images && info.images.length) {
       return info.images[0].url;
@@ -72,6 +76,14 @@ export default function RecentAlbumReleases({ recentAlbums }) {
   return (
     <>
       <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
+      <label>
+        Include Saved Albums:
+        <input
+          type={"checkbox"}
+          onChange={() => setIncludeSavedAlbums(!includeSavedAlbums)}
+          checked={includeSavedAlbums}
+        />
+      </label>
       {recentAlbums && recentAlbums.length && (
         <table>
           <thead>
