@@ -8,6 +8,7 @@ export default function Home() {
   const ALBUMS_VIEW = "albums";
   const CUTOFF_DAYS_AGO = 250;
   const MAX_ARTISTS_LIMIT = 101;
+  const MAX_SAVED_ALBUMS = 2000;
   const TOP_ARTISTS_LIMIT = 49;
   const SAVED_ALBUMS_LIMIT = 50;
   const ARTIST_MIN_SAVED_ALBUM_COUNT = 2;
@@ -72,7 +73,8 @@ export default function Home() {
   const getAllSavedAlbums = () => {
     if (includeSavedAlbums) {
       let albumPromises = [];
-      for (let i = 0; i < 20; i++) {
+      const maxLimit = MAX_SAVED_ALBUMS / 50;
+      for (let i = 0; i < maxLimit; i++) {
         albumPromises.push(
           spotifyApi.getMySavedAlbums({
             limit: 50,
