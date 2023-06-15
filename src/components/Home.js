@@ -38,21 +38,7 @@ export default function Home() {
 
   useEffect(() => {
     if (Object.keys(recentAlbums).length > 0) {
-      let tempRecentAlbums = { ...recentAlbums };
-      const albumIds = Object.keys(recentAlbums).filter(
-        (albumId) => recentAlbums[albumId].isAlbumSaved === undefined
-      );
-      if (albumIds.length) {
-        // TODO batch this by 20 at a time
-        spotifyApi
-          .containsMySavedAlbums(albumIds)
-          .then((savedBooleans, err) => {
-            savedBooleans.forEach((isAlbumSaved, idx) => {
-              tempRecentAlbums[albumIds[idx]].isAlbumSaved = isAlbumSaved;
-            });
-            setRecentAlbums(tempRecentAlbums);
-          });
-      }
+      addSavedAlbums();
     }
   }, [recentAlbums]);
 
@@ -150,6 +136,26 @@ export default function Home() {
         );
         setSavedAlbumArtists(Array.from(minSavedCountArtists));
       });
+    }
+  };
+
+  const addSavedAlbums = async () => {
+    let tempRecentAlbums = { ...recentAlbums };
+    const albumIds = Object.keys(recentAlbums).filter(
+      (albumId) => recentAlbums[albumId].isAlbumSaved === undefined
+    );
+    if (albumIds.length) {
+      for (let i = 0; i < albumIds.length; i += SAVED_ALBUMS_LIMIT) {
+        const tempIds = albumIds.slice(i, i + SAVED_ALBUMS_LIMIT);
+        await spotifyApi
+          .containsMySavedAlbums(tempIds)
+          .then((savedBooleans, err) => {
+            savedBooleans.forEach((isAlbumSaved, idx) => {
+              tempRecentAlbums[tempIds[idx]].isAlbumSaved = isAlbumSaved;
+            });
+          });
+      }
+      setRecentAlbums(tempRecentAlbums);
     }
   };
 
