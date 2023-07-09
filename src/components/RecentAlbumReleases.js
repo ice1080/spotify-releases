@@ -10,6 +10,7 @@ import QuestionMark from "@mui/icons-material/QuestionMark";
 
 export default function RecentAlbumReleases({
   recentAlbums,
+  apiCount,
   addSavedToQuery,
   setAddSavedToQuery,
   showMySavedAlbums,
@@ -78,6 +79,7 @@ export default function RecentAlbumReleases({
   return (
     <>
       <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
+      <h2>API Count - {apiCount}</h2>
       <label>
         Add Saved To Query:
         <input

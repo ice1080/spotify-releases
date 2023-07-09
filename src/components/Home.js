@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSpotify } from "../hooks/useSpotify";
 import RecentAlbumReleases from "./RecentAlbumReleases";
 import TopArtists from "./TopArtists";
@@ -21,6 +21,7 @@ export default function Home() {
   const [addSavedToQuery, setAddSavedToQuery] = useState(false);
   const [showMySavedAlbums, setShowMySavedAlbums] = useState(false);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
+  const apiCount = useRef(0);
 
   useEffect(() => {
     if (hasLoggedIn) {
@@ -48,6 +49,7 @@ export default function Home() {
     let artistPromises = [];
     let artistLimitArray = [50, 50];
     artistLimitArray.forEach((limit, i) => {
+      incrementApiCount();
       artistPromises.push(
         spotifyApi.getMyTopArtists({
           time_range: "long_term",
@@ -76,6 +78,7 @@ export default function Home() {
       let albumPromises = [];
       const maxLimit = MAX_SAVED_ALBUMS / 50;
       for (let i = 0; i < maxLimit; i++) {
+        incrementApiCount();
         albumPromises.push(
           spotifyApi.getMySavedAlbums({
             limit: 50,
@@ -150,6 +153,7 @@ export default function Home() {
     if (albumIds.length) {
       for (let i = 0; i < albumIds.length; i += SAVED_ALBUMS_LIMIT) {
         const tempIds = albumIds.slice(i, i + SAVED_ALBUMS_LIMIT);
+        incrementApiCount();
         await spotifyApi
           .containsMySavedAlbums(tempIds)
           .then((savedBooleans, err) => {
@@ -169,6 +173,7 @@ export default function Home() {
     allArtists.forEach((artist) => {
       // this may be needed once more artists are added (e.g. hundreds)
       /* if (!artist.recentAlbums) { */
+      incrementApiCount();
       artistAlbumPromises.push(
         spotifyApi.getArtistAlbums(artist.id, {
           include_groups: "album",
@@ -248,6 +253,11 @@ export default function Home() {
     }
   };
 
+  const incrementApiCount = () => {
+    /* console.log("incrementing: ", apiCount.current); */
+    apiCount.current = apiCount.current + 1;
+  };
+
   const renderCurrentView = () => {
     if (currentView === "artists") {
       return <TopArtists topArtists={topArtists} />;
@@ -255,6 +265,7 @@ export default function Home() {
       return (
         <RecentAlbumReleases
           recentAlbums={filterAlbums(recentAlbums)}
+          apiCount={apiCount.current}
           addSavedToQuery={addSavedToQuery}
           setAddSavedToQuery={setAddSavedToQuery}
           showMySavedAlbums={showMySavedAlbums}
