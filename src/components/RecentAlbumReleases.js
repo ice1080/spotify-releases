@@ -10,8 +10,8 @@ import QuestionMark from "@mui/icons-material/QuestionMark";
 
 export default function RecentAlbumReleases({
   recentAlbums,
-  includeSavedAlbums,
-  setIncludeSavedAlbums,
+  addSavedToQuery,
+  setAddSavedToQuery,
 }) {
   const getImageHref = (info) => {
     if (info.images && info.images.length) {
@@ -77,11 +77,11 @@ export default function RecentAlbumReleases({
     <>
       <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
       <label>
-        Include Saved Albums:
+        Add Saved To Query:
         <input
           type={"checkbox"}
-          onChange={() => setIncludeSavedAlbums(!includeSavedAlbums)}
-          checked={includeSavedAlbums}
+          onChange={() => setAddSavedToQuery(!addSavedToQuery)}
+          checked={addSavedToQuery}
         />
       </label>
       {recentAlbums && recentAlbums.length && (

@@ -18,7 +18,7 @@ export default function Home() {
   const [topArtists, setTopArtists] = useState([]);
   const [savedAlbumArtists, setSavedAlbumArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
-  const [includeSavedAlbums, setIncludeSavedAlbums] = useState(true);
+  const [addSavedToQuery, setAddSavedToQuery] = useState(false);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
@@ -31,11 +31,11 @@ export default function Home() {
   useEffect(() => {
     if (
       topArtists.length > 0 &&
-      (savedAlbumArtists.length > 0 || !includeSavedAlbums)
+      (savedAlbumArtists.length > 0 || !addSavedToQuery)
     ) {
       getAllRecentAlbums();
     }
-  }, [topArtists, savedAlbumArtists, includeSavedAlbums]);
+  }, [topArtists, savedAlbumArtists, addSavedToQuery]);
 
   useEffect(() => {
     if (Object.keys(recentAlbums).length > 0) {
@@ -71,7 +71,7 @@ export default function Home() {
   };
 
   const getAllSavedAlbums = () => {
-    if (includeSavedAlbums) {
+    if (addSavedToQuery) {
       let albumPromises = [];
       const maxLimit = MAX_SAVED_ALBUMS / 50;
       for (let i = 0; i < maxLimit; i++) {
@@ -199,7 +199,7 @@ export default function Home() {
     topArtists.forEach((artist) => {
       combined[artist.id] = artist;
     });
-    if (includeSavedAlbums) {
+    if (addSavedToQuery) {
       savedAlbumArtists.forEach((artist) => {
         if (!combined[artist.id]) {
           combined[artist.id] = artist;
@@ -254,8 +254,8 @@ export default function Home() {
       return (
         <RecentAlbumReleases
           recentAlbums={filterAlbums(recentAlbums)}
-          includeSavedAlbums={includeSavedAlbums}
-          setIncludeSavedAlbums={setIncludeSavedAlbums}
+          addSavedToQuery={addSavedToQuery}
+          setAddSavedToQuery={setAddSavedToQuery}
         />
       );
     }
