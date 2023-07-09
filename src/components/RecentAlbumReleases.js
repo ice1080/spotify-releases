@@ -12,6 +12,8 @@ export default function RecentAlbumReleases({
   recentAlbums,
   addSavedToQuery,
   setAddSavedToQuery,
+  showMySavedAlbums,
+  setShowMySavedAlbums,
 }) {
   const getImageHref = (info) => {
     if (info.images && info.images.length) {
@@ -82,6 +84,15 @@ export default function RecentAlbumReleases({
           type={"checkbox"}
           onChange={() => setAddSavedToQuery(!addSavedToQuery)}
           checked={addSavedToQuery}
+        />
+      </label>
+      <br />
+      <label>
+        Show My Saved Albums:
+        <input
+          type={"checkbox"}
+          onChange={() => setShowMySavedAlbums(!showMySavedAlbums)}
+          checked={showMySavedAlbums}
         />
       </label>
       {recentAlbums && recentAlbums.length && (

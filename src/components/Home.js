@@ -19,6 +19,7 @@ export default function Home() {
   const [savedAlbumArtists, setSavedAlbumArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
   const [addSavedToQuery, setAddSavedToQuery] = useState(false);
+  const [showMySavedAlbums, setShowMySavedAlbums] = useState(false);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
 
   useEffect(() => {
@@ -38,10 +39,10 @@ export default function Home() {
   }, [topArtists, savedAlbumArtists, addSavedToQuery]);
 
   useEffect(() => {
-    if (Object.keys(recentAlbums).length > 0) {
+    if (showMySavedAlbums && Object.keys(recentAlbums).length > 0) {
       addSavedAlbums();
     }
-  }, [recentAlbums]);
+  }, [recentAlbums, showMySavedAlbums]);
 
   const getAllTopArtists = () => {
     let artistPromises = [];
@@ -256,6 +257,8 @@ export default function Home() {
           recentAlbums={filterAlbums(recentAlbums)}
           addSavedToQuery={addSavedToQuery}
           setAddSavedToQuery={setAddSavedToQuery}
+          showMySavedAlbums={showMySavedAlbums}
+          setShowMySavedAlbums={setShowMySavedAlbums}
         />
       );
     }
