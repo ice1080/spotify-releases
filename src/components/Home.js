@@ -31,13 +31,18 @@ export default function Home() {
   }, [hasLoggedIn]);
 
   useEffect(() => {
-    if (
-      topArtists.length > 0 &&
-      (savedAlbumArtists.length > 0 || !addSavedToQuery)
-    ) {
+    /* console.log("topArtists", topArtists); */
+    /* console.log("savedAlbumArtists", savedAlbumArtists); */
+    if (topArtists.length > 0 && savedAlbumArtists.length > 0) {
       getAllRecentAlbums();
     }
-  }, [topArtists, savedAlbumArtists, addSavedToQuery]);
+  }, [topArtists, savedAlbumArtists]);
+
+  useEffect(() => {
+    if (addSavedToQuery && savedAlbumArtists.length === 0) {
+      getAllSavedAlbums();
+    }
+  }, [addSavedToQuery]);
 
   useEffect(() => {
     if (showMySavedAlbums && Object.keys(recentAlbums).length > 0) {
@@ -168,6 +173,7 @@ export default function Home() {
   };
 
   const getAllRecentAlbums = () => {
+    /* console.log("retrieving all recent albums"); */
     let allRecentAlbums = {};
     let artistAlbumPromises = [];
     let allArtists = combineArtistLists();
@@ -196,8 +202,8 @@ export default function Home() {
           }
         }
       });
-      /* console.log("recent albums", allRecentAlbums); */
       setRecentAlbums(allRecentAlbums);
+      /* console.log("done retrieving all recent albums"); */
     });
   };
 
