@@ -33,7 +33,10 @@ export default function Home() {
   useEffect(() => {
     /* console.log("topArtists", topArtists); */
     /* console.log("savedAlbumArtists", savedAlbumArtists); */
-    if (topArtists.length > 0 && savedAlbumArtists.length > 0) {
+    if (
+      topArtists.length > 0 &&
+      (savedAlbumArtists.length > 0 || !addSavedToQuery)
+    ) {
       getAllRecentAlbums();
     }
   }, [topArtists, savedAlbumArtists]);
@@ -51,6 +54,7 @@ export default function Home() {
   }, [recentAlbums, showMySavedAlbums]);
 
   const getAllTopArtists = () => {
+    console.log("getAllTopArtists");
     let artistPromises = [];
     let artistLimitArray = [50, 50];
     artistLimitArray.forEach((limit, i) => {
@@ -73,13 +77,15 @@ export default function Home() {
         if (b.popularity < a.popularity) return 1;
         return 0;
       });
-      console.log("top artists", localTopArtists, localTopArtists.length);
+      /* console.log("top artists", localTopArtists, localTopArtists.length); */
       setTopArtists(localTopArtists);
     });
   };
 
   const getAllSavedAlbums = () => {
+    console.log("getAllSavedAlbums");
     if (addSavedToQuery) {
+      // TODO add sleep here?
       let albumPromises = [];
       const maxLimit = MAX_SAVED_ALBUMS / 50;
       for (let i = 0; i < maxLimit; i++) {
@@ -151,6 +157,7 @@ export default function Home() {
   };
 
   const addSavedAlbums = async () => {
+    console.log("addSavedAlbums");
     await new Promise((r) => setTimeout(r, 5000));
     let tempRecentAlbums = { ...recentAlbums };
     const albumIds = Object.keys(recentAlbums).filter(
@@ -172,8 +179,9 @@ export default function Home() {
     }
   };
 
-  const getAllRecentAlbums = () => {
-    /* console.log("retrieving all recent albums"); */
+  const getAllRecentAlbums = async () => {
+    console.log("getAllRecentAlbums");
+    await new Promise((r) => setTimeout(r, 5000));
     let allRecentAlbums = {};
     let artistAlbumPromises = [];
     let allArtists = combineArtistLists();
