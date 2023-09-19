@@ -19,7 +19,7 @@ export default function Home() {
   const [savedAlbumArtists, setSavedAlbumArtists] = useState([]);
   const [recentAlbums, setRecentAlbums] = useState([]);
   const [addSavedToQuery, setAddSavedToQuery] = useState(false);
-  const [showMySavedAlbums, setShowMySavedAlbums] = useState(false);
+  const [showMySavedAlbums, setShowMySavedAlbums] = useState(true);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
   const apiCount = useRef(0);
 
@@ -146,6 +146,7 @@ export default function Home() {
   };
 
   const addSavedAlbums = async () => {
+    await new Promise((r) => setTimeout(r, 5000));
     let tempRecentAlbums = { ...recentAlbums };
     const albumIds = Object.keys(recentAlbums).filter(
       (albumId) => recentAlbums[albumId].isAlbumSaved === undefined

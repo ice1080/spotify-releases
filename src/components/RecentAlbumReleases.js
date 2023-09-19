@@ -81,7 +81,7 @@ export default function RecentAlbumReleases({
       <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
       <h2>API Count - {apiCount}</h2>
       <label>
-        Add Saved To Query:
+        Add all saved albums to list of artists to query for new releases:
         <input
           type={"checkbox"}
           onChange={() => setAddSavedToQuery(!addSavedToQuery)}
