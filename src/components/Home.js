@@ -180,12 +180,19 @@ export default function Home() {
   };
 
   const getAllRecentAlbums = async () => {
+    // TODO this is where we hit rate limits
     console.log("getAllRecentAlbums");
     await new Promise((r) => setTimeout(r, 5000));
     let allRecentAlbums = {};
     let artistAlbumPromises = [];
     let allArtists = combineArtistLists();
-    allArtists.forEach((artist) => {
+    console.log("allArtists", allArtists.length, allArtists);
+    let i = 0;
+    for (const artist of allArtists) {
+      if (i % 50 === 0) {
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+      /* allArtists.forEach((artist) => { */
       // this may be needed once more artists are added (e.g. hundreds)
       /* if (!artist.recentAlbums) { */
       incrementApiCount();
@@ -195,7 +202,9 @@ export default function Home() {
         })
       );
       /* } */
-    });
+      /* }); */
+      i++;
+    }
     Promise.all(artistAlbumPromises).then((values) => {
       values.forEach((data, i) => {
         if (data.items && data.items.length) {
