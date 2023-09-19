@@ -190,7 +190,7 @@ export default function Home() {
     let i = 0;
     for (const artist of allArtists) {
       if (i % 50 === 0) {
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 5000));
       }
       /* allArtists.forEach((artist) => { */
       // this may be needed once more artists are added (e.g. hundreds)
