@@ -8,14 +8,7 @@ import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import QuestionMark from "@mui/icons-material/QuestionMark";
 
-export default function RecentAlbumReleases({
-  recentAlbums,
-  apiCount,
-  addSavedToQuery,
-  setAddSavedToQuery,
-  showMySavedAlbums,
-  setShowMySavedAlbums,
-}) {
+export default function RecentAlbumReleases({ recentAlbums }) {
   const getImageHref = (info) => {
     if (info.images && info.images.length) {
       return info.images[0].url;
@@ -79,24 +72,6 @@ export default function RecentAlbumReleases({
   return (
     <>
       <h1>Recent Album Releases ({recentAlbums.length} total)</h1>
-      <h2>API Count - {apiCount}</h2>
-      <label>
-        Add all saved albums to list of artists to query for new releases:
-        <input
-          type={"checkbox"}
-          onChange={() => setAddSavedToQuery(!addSavedToQuery)}
-          checked={addSavedToQuery}
-        />
-      </label>
-      <br />
-      <label>
-        Show My Saved Albums:
-        <input
-          type={"checkbox"}
-          onChange={() => setShowMySavedAlbums(!showMySavedAlbums)}
-          checked={showMySavedAlbums}
-        />
-      </label>
       {recentAlbums && recentAlbums.length && (
         <table>
           <thead>

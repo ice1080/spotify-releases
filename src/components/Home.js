@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSpotify } from "../hooks/useSpotify";
 import RecentAlbumReleases from "./RecentAlbumReleases";
 import TopArtists from "./TopArtists";
+import LoadingIcon from "./LoadingIcon";
+import ApiCount from "./ApiCount";
 
 export default function Home() {
   const ARTISTS_VIEW = "artists";
@@ -21,7 +23,8 @@ export default function Home() {
   const [addSavedToQuery, setAddSavedToQuery] = useState(false);
   const [showMySavedAlbums, setShowMySavedAlbums] = useState(true);
   const [currentView, setCurrentView] = useState(ALBUMS_VIEW);
-  const apiCount = useRef(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiCount, setApiCount] = useState(0);
 
   useEffect(() => {
     if (hasLoggedIn) {
@@ -55,6 +58,7 @@ export default function Home() {
 
   const getAllTopArtists = () => {
     console.log("getAllTopArtists");
+    setIsLoading(true);
     let artistPromises = [];
     let artistLimitArray = [50, 50];
     artistLimitArray.forEach((limit, i) => {
@@ -86,6 +90,7 @@ export default function Home() {
     console.log("getAllSavedAlbums");
     if (addSavedToQuery) {
       // TODO add sleep here?
+      setIsLoading(true);
       let albumPromises = [];
       const maxLimit = MAX_SAVED_ALBUMS / 50;
       for (let i = 0; i < maxLimit; i++) {
@@ -180,7 +185,6 @@ export default function Home() {
   };
 
   const getAllRecentAlbums = async () => {
-    // TODO this is where we hit rate limits
     console.log("getAllRecentAlbums");
     await new Promise((r) => setTimeout(r, 5000));
     let allRecentAlbums = {};
@@ -220,6 +224,7 @@ export default function Home() {
         }
       });
       setRecentAlbums(allRecentAlbums);
+      setIsLoading(false);
       /* console.log("done retrieving all recent albums"); */
     });
   };
@@ -278,8 +283,7 @@ export default function Home() {
   };
 
   const incrementApiCount = () => {
-    /* console.log("incrementing: ", apiCount.current); */
-    apiCount.current = apiCount.current + 1;
+    setApiCount((prevCount) => prevCount + 1);
   };
 
   const renderCurrentView = () => {
@@ -287,14 +291,27 @@ export default function Home() {
       return <TopArtists topArtists={topArtists} />;
     } else if (currentView === "albums") {
       return (
-        <RecentAlbumReleases
-          recentAlbums={filterAlbums(recentAlbums)}
-          apiCount={apiCount.current}
-          addSavedToQuery={addSavedToQuery}
-          setAddSavedToQuery={setAddSavedToQuery}
-          showMySavedAlbums={showMySavedAlbums}
-          setShowMySavedAlbums={setShowMySavedAlbums}
-        />
+        <>
+          <label>
+            Add all saved albums to list of artists to query for new releases:
+            <input
+              type={"checkbox"}
+              onChange={() => setAddSavedToQuery(!addSavedToQuery)}
+              checked={addSavedToQuery}
+            />
+          </label>
+          <br />
+          <label>
+            Show My Saved Albums:
+            <input
+              type={"checkbox"}
+              onChange={() => setShowMySavedAlbums(!showMySavedAlbums)}
+              checked={showMySavedAlbums}
+            />
+          </label>
+
+          <RecentAlbumReleases recentAlbums={filterAlbums(recentAlbums)} />
+        </>
       );
     }
   };
@@ -308,6 +325,7 @@ export default function Home() {
         <button onClick={() => setCurrentView(ARTISTS_VIEW)}>
           Top Artists
         </button>
+        <br />
       </>
     );
   };
@@ -315,6 +333,8 @@ export default function Home() {
   return (
     <>
       {renderViewSelector()}
+      <LoadingIcon isLoading={isLoading} />
+      <ApiCount apiCount={apiCount} />
       {renderCurrentView()}
     </>
   );
