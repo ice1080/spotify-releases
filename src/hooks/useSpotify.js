@@ -6,11 +6,19 @@ import SpotifyWebApi from "spotify-web-api-js";
 const spotifyApi = new SpotifyWebApi();
 
 // Environment variables from `.env` file.
-const {
+let {
   REACT_APP_SPOTIFY_RELEASE_CLIENT_ID,
   REACT_APP_SPOTIFY_RELEASE_REDIRECT_URI,
   REACT_APP_SPOTIFY_RELEASE_SCOPES,
 } = process.env;
+
+if (!REACT_APP_SPOTIFY_RELEASE_REDIRECT_URI) {
+  REACT_APP_SPOTIFY_RELEASE_REDIRECT_URI = "http://localhost:3000/spotify-redirect"
+}
+
+if (!REACT_APP_SPOTIFY_RELEASE_SCOPES) {
+  REACT_APP_SPOTIFY_RELEASE_SCOPES = "user-top-read, user-library-read"
+}
 
 const BASE_API_URL = "https://api.spotify.com/v1";
 

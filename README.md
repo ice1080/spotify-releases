@@ -5,8 +5,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Spotify Setup
 
 - You have to have these environment variables set:
-  - SPOTIFY_RELEASES_CLIENT_ID
-  - SPOTIFY_RELEASES_CLIENT_SECRET
+  - REACT_APP_SPOTIFY_RELEASE_CLIENT_ID
+  - REACT_APP_SPOTIFY_RELEASE_CLIENT_SECRET
 
 ## Available Scripts
 
